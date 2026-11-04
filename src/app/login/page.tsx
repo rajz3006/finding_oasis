@@ -1,4 +1,4 @@
-import { sendLink, verifyCode } from "./actions";
+import { sendLink, verifyCode, signInWithPassword } from "./actions";
 
 const input = "w-full rounded border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 const btn = "rounded bg-zinc-900 px-3 py-2 text-sm text-white dark:bg-zinc-100 dark:text-zinc-900";
@@ -12,11 +12,20 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       {error === "denied" && <p className="text-sm text-red-600">That account is not allowed.</p>}
       {error === "link" && <p className="text-sm text-red-600">Link invalid or expired. Request a new one (open it in the same browser).</p>}
       {error === "code" && <p className="text-sm text-red-600">Invalid or expired code.</p>}
+      {error === "password" && <p className="text-sm text-red-600">Incorrect email or password.</p>}
+      {!sent && (
+        <form action={signInWithPassword} className="space-y-3">
+          <input type="hidden" name="next" value={next} />
+          <input className={input} type="email" name="email" placeholder="you@example.com" required autoFocus />
+          <input className={input} type="password" name="password" placeholder="Password" autoComplete="current-password" required />
+          <button className={btn} type="submit">Sign in</button>
+        </form>
+      )}
       {!sent ? (
         <form action={sendLink} className="space-y-3">
           <input type="hidden" name="next" value={next} />
           <input className={input} type="email" name="email" placeholder="you@example.com" required autoFocus />
-          <button className={btn} type="submit">Email me a sign-in link</button>
+          <button className={btn} type="submit">Or email me a sign-in link</button>
         </form>
       ) : (
         <div className="space-y-3">

@@ -42,3 +42,19 @@ export async function verifyCode(formData: FormData) {
   }
   redirect(`/login?sent=${encodeURIComponent(email)}&next=${encodeURIComponent(next)}&error=code`);
 }
+
+/** Password sign-in (primary). Same generic error whether the email is disallowed or the password is wrong. */
+export async function signInWithPassword(formData: FormData) {
+  const email = normalizeEmail(String(formData.get("email") ?? ""));
+  const password = String(formData.get("password") ?? "");
+  const next = safeNext(String(formData.get("next") ?? ""));
+  const cfg = enforced();
+  if (!cfg) redirect("/login?error=config");
+  if (isAllowedEmail(email, cfg.allowedEmail) && password) {
+    const supabase = await supabaseServer(cfg);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && isAllowedEmail(data.user?.email, cfg.allowedEmail)) redirect(next);
+    if (!error) await supabase.auth.signOut();
+  }
+  redirect(`/login?error=password&next=${encodeURIComponent(next)}`);
+}
