@@ -44,6 +44,7 @@ export default async function Page() {
             <li key={p.id} className="flex flex-wrap items-center gap-2 rounded border border-zinc-200 p-3 text-sm dark:border-zinc-800">
               <Link href={`/evidence/pursuit/${p.id}`} className="font-medium hover:underline">{p.opportunity.title}</Link>
               <Pill>{p.state}</Pill>
+              {p.completionProof ? <Pill>full credit</Pill> : <span className="text-xs font-medium text-amber-700 dark:text-amber-300">no completion proof{p.invitationProof ? " (0.3x)" : ""}</span>}
               {p.opportunity.venue?.avoidFlag && <AvoidBadge />}
               <span className="text-xs text-zinc-500">{crit.map((n) => `C${n}`).join(" ")} · {fmtDate(p.completedOn ?? p.decidedOn)}</span>
               <span className="ml-auto text-xs">{done}/{items.size} checklist · {p.evidence.length} artifacts</span>

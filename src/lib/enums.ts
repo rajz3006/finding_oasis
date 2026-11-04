@@ -8,6 +8,11 @@ export const PURSUIT_STATES = ["shortlisted", "applied", "accepted", "completed"
 export const STRENGTHS = ["strong", "moderate", "thin"] as const;
 export const EVIDENCE_KINDS = ["file", "link", "email", "screenshot", "metric"] as const;
 export const SOURCE_ACCESS = ["api", "scrape", "manual"] as const;
+export const CHANNEL_TYPES = ["site", "newsletter", "linkedin", "x", "github", "youtube", "podcast"] as const;
+export const CHANNEL_OWNERSHIP = ["owned", "earned"] as const;
+export const INDEPENDENCE = ["independent", "mixed", "interested"] as const;
+export const PRESTIGE = ["flagship", "recognized", "regional", "local"] as const;
+export const RECOMMENDER_STATUSES = ["identified", "contacted", "agreed", "letter_received", "declined"] as const;
 export const CRITERION_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 
 export type VenueKind = (typeof VENUE_KINDS)[number];
@@ -20,6 +25,11 @@ export type Strength = (typeof STRENGTHS)[number];
 export type EvidenceKind = (typeof EVIDENCE_KINDS)[number];
 export type SourceAccess = (typeof SOURCE_ACCESS)[number];
 export type CriterionId = (typeof CRITERION_IDS)[number];
+export type ChannelType = (typeof CHANNEL_TYPES)[number];
+export type ChannelOwnership = (typeof CHANNEL_OWNERSHIP)[number];
+export type Independence = (typeof INDEPENDENCE)[number];
+export type Prestige = (typeof PRESTIGE)[number];
+export type RecommenderStatus = (typeof RECOMMENDER_STATUSES)[number];
 
 export function isOneOf<T extends string>(list: readonly T[], v: unknown): v is T {
   return typeof v === "string" && (list as readonly string[]).includes(v);

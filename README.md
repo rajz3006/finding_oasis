@@ -18,16 +18,30 @@ Other scripts: `npm run build && npm start`, `npm test`, `npm run typecheck`, `n
 
 ## Features
 - Opportunity catalog with venue quality tiers/avoid flags, mapped to the 10 EB-1A criteria
-- Pipeline (shortlist -> in progress -> completed), evidence locker, achievement logging
-- Coverage dashboard, scoring, nearest-wins and deadline reminders
-- Triage of connector-discovered items; sources screen
-- Dossier export (CSV and PDF) at `/api/export/dossier?format=csv|pdf`
+- Pipeline (shortlist -> applied -> accepted -> completed -> dropped), evidence locker, achievement logging
+- Coverage dashboard, nearest-wins and deadline reminders; triage of connector-discovered items
+- **v2 dual scoring**: each pursuit gets a criterion-satisfaction score and a final-merits score (rubrics in `src/lib/rubric.ts`), with corroboration
+- **Readiness gates** on the dashboard: per-criterion readiness derived from evidence quality, not just counts
+- **Brand** (`/brand`): channels, reach metrics over time, positioning, pillars, cadence notes
+- **Recommenders** (`/recommenders`): lightweight CRM for recommendation-letter writers
+- **Exhibit export** for the attorney: `/api/export/exhibit?format=pdf|csv|zip`
+- Dossier export: `/api/export/dossier?format=csv|pdf`
+- Profile screen: field tags, ORCID, positioning, and per-source **Edit config** (JSON, validated server-side; runner-managed keys such as `status`/`lastError` are preserved)
+
+## Connectors
+Opportunity: developers.events, OpenAlex, Crossref, DOAJ, GitHub issues, arXiv, NSF Awards, GDELT, Google Alerts.
+Metrics/reach: ORCID, Semantic Scholar, PatentsView, GitHub Profile, Site Analytics (Plausible/Umami), Newsletter RSS.
+Per-source config keys are listed under "Edit config" on `/profile`.
+
+Env vars (`.env.example`): `DATABASE_URL`, `PATENTSVIEW_API_KEY`, `SEMANTIC_SCHOLAR_API_KEY`, `GITHUB_TOKEN`,
+`ANALYTICS_BASE_URL`, `ANALYTICS_SITE_ID`, `ANALYTICS_TOKEN`. Keyless: arXiv, NSF, GDELT, RSS feeds.
 
 ## Limitations
-- Live connectors (developers.events, OpenAlex, Crossref, DOAJ, GitHub, ORCID, Semantic Scholar,
-  PatentsView) are **unverified against the live APIs**; endpoints/fields may need adjusting.
+- Live connectors are **unverified against the live APIs**; endpoints/fields may need adjusting
+  (GDELT and arXiv are rate-limited, so runs are deliberately slow).
+- Site Analytics needs a self-hosted/own Plausible or Umami instance; Google Alerts feeds must be created by hand.
 - Single-user, local-first; no auth. Seed venue data and tiers are curated starting points - verify before relying on them.
-- Not legal advice.
+- Scores are self-assessed heuristics, not a USCIS determination. Not legal advice.
 
 ## What's here
 - `CLAUDE.md` — the build brief for the agent (read first).

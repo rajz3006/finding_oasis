@@ -1,5 +1,5 @@
 import type { Opportunity, Venue } from "@prisma/client";
-import { CATALOG_STATUSES, EFFORTS, OPP_TYPES, STRENGTHS } from "@/lib/enums";
+import { CATALOG_STATUSES, EFFORTS, INDEPENDENCE, OPP_TYPES, STRENGTHS } from "@/lib/enums";
 import { parseIntArray } from "@/lib/json";
 import { CriteriaChecks, Field, btnPrimaryCls, dateInputValue, inputCls, label } from "@/components/ui";
 import { VenueFields } from "./venue-fields";
@@ -55,6 +55,21 @@ export function OpportunityForm({ action, venues, opp, achievement }: Props) {
           <Field label="Strength">
             <select name="strength" className={inputCls}><option value="">(unset)</option>{STRENGTHS.map((s) => <option key={s}>{s}</option>)}</select>
           </Field>
+          <Field label="Brand score (0-100)" hint="Blank = estimated from type and venue prestige">
+            <input type="number" name="brandScore" min={0} max={100} placeholder="estimated" className={inputCls} />
+          </Field>
+          <Field label="Independence">
+            <select name="independence" defaultValue="mixed" className={inputCls}>{INDEPENDENCE.map((s) => <option key={s}>{s}</option>)}</select>
+          </Field>
+          <div className="sm:col-span-2">
+            <div className="mb-1 text-sm font-medium">Corroboration</div>
+            <div className="flex flex-wrap gap-2 text-sm">
+              {([["invitationProof", "invitation"], ["completionProof", "completion"], ["thirdPartyProof", "third-party"]] as const).map(([n, t]) => (
+                <label key={n} className="flex items-center gap-1 rounded border border-zinc-300 px-2 py-1 dark:border-zinc-700"><input type="checkbox" name={n} /> {t}</label>
+              ))}
+            </div>
+            <p className="mt-1 text-xs text-zinc-500">Invitation without completion proof gets 0.3x. Evidence you attach next can suggest these.</p>
+          </div>
           <div className="sm:col-span-2"><Field label="Notes"><textarea name="notes" rows={2} className={inputCls} /></Field></div>
         </div>
       )}

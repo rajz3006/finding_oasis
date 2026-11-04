@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { deleteEvidenceFile, saveEvidenceFile } from "@/lib/evidence";
 import { EVIDENCE_KINDS, isOneOf } from "@/lib/enums";
+import { parseProofs } from "@/lib/pursuit-input";
 
 const s = (fd: FormData, k: string) => {
   const v = fd.get(k);
@@ -42,4 +43,15 @@ export async function removeEvidence(fd: FormData) {
   }
   revalidatePath(`/evidence/pursuit/${ev.pursuitId}`);
   revalidatePath("/evidence");
+}
+
+/** User-confirmed corroboration proofs (suggested from attached evidence). */
+export async function saveProofs(fd: FormData) {
+  const id = s(fd, "id");
+  if (!id || !(await db.pursuit.findUnique({ where: { id } }))) return;
+  const p = parseProofs(fd);
+  await db.pursuit.update({ where: { id }, data: { invitationProof: p.invitation, completionProof: p.completion, thirdPartyProof: p.thirdParty } });
+  revalidatePath(`/evidence/pursuit/${id}`);
+  revalidatePath("/evidence");
+  revalidatePath("/pipeline");
 }

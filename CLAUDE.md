@@ -73,5 +73,16 @@ as a "source stale" badge. On every Venue upsert, match against `seed/venues.see
 - Do not invent venue facts; where acceptance rates/deadlines are unknown, leave null and let
   connectors fill them. Flag anything uncertain for the owner to confirm.
 
+## v2 additions
+- Dual scoring (criterion + final merits): `src/lib/rubric.ts`, `pursuit-input.ts`, `pursuit-view.ts`; readiness in `coverage.ts` / `components/dashboard/readiness.tsx`.
+- Brand/reach: `src/lib/brand-growth.ts`, `lib/data/{channels,reach}.ts`, `/brand`. Recommenders: `lib/recommender.ts`, `/recommenders`.
+- Exhibit export: `src/lib/exhibit.ts`, `/api/export/exhibit`.
+- Connectors added: arXiv, NSF Awards, GDELT, Google Alerts, GitHub Profile, Site Analytics, Newsletter RSS (shared helpers in `src/lib/connectors/{feed,reach-sink}.ts`).
+- Source config is editable on `/profile`; known keys live in `src/lib/connectors/config-hints.ts` (update it when a connector reads a new key). The runner owns `status`, `lastError`, `lastErrorAt`, `lastCounts`; never overwrite them from the UI.
+
+## Conventions (v2)
+- Pages in `src/app/<route>` own their `actions.ts`; data access only via `src/lib/data/*`; pure logic in `src/lib/*` with colocated `*.test.ts`.
+- Before finishing: `npm run typecheck && npm run lint && npm test && npm run build`.
+
 ## Attribution for commits/PRs
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+Follow the attribution instructions given by the session/tooling; do not hardcode a model name here.

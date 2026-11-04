@@ -4,7 +4,11 @@ import { getProfile } from "@/lib/data/profile";
 import { listSources } from "@/lib/data/sources";
 import { sourceHealth } from "@/lib/connectors/runner";
 import { CONNECTORS } from "@/lib/connectors/registry";
-import { runSourceNow, saveProfile } from "./actions";
+import { CONFIG_HINTS, RUNNER_KEYS } from "@/lib/connectors/config-hints";
+import { parseJson } from "@/lib/json";
+import { runSourceNow, saveProfile, saveSourceConfig } from "./actions";
+import { PositioningForm } from "@/components/profile/positioning-form";
+import { savePositioning } from "@/app/brand/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -35,10 +39,19 @@ export default async function Page() {
         <button className="rounded bg-zinc-900 px-3 py-1 text-sm text-white">Save</button>
       </form>
 
+      <section className="mb-8">
+        <h2 className="mb-2 font-medium">Brand positioning</h2>
+        <PositioningForm action={savePositioning} positioning={profile.positioning} pillars={profile.pillars} cadenceNotes={profile.cadenceNotes} />
+      </section>
+
       <div className="mb-8 flex items-center gap-2 text-sm">
         <span className="font-medium">Export evidence dossier</span>
         <a href="/api/export/dossier?format=csv" className="rounded border border-zinc-300 px-2 py-0.5 hover:bg-zinc-100">CSV</a>
         <a href="/api/export/dossier?format=pdf" className="rounded border border-zinc-300 px-2 py-0.5 hover:bg-zinc-100">PDF</a>
+        <span className="ml-4 font-medium">Attorney exhibits</span>
+        <a href="/api/export/exhibit?format=pdf" className="rounded border border-zinc-300 px-2 py-0.5 hover:bg-zinc-100">PDF</a>
+        <a href="/api/export/exhibit?format=csv" className="rounded border border-zinc-300 px-2 py-0.5 hover:bg-zinc-100">CSV</a>
+        <a href="/api/export/exhibit?format=zip" className="rounded border border-zinc-300 px-2 py-0.5 hover:bg-zinc-100">ZIP</a>
       </div>
 
       <h2 className="mb-2 font-medium">Sources</h2>
@@ -74,6 +87,24 @@ export default async function Page() {
                       <button className="rounded border border-zinc-300 px-2 py-0.5 text-xs hover:bg-zinc-100">Run now</button>
                     </form>
                   )}
+                  <details className="mt-1">
+                    <summary className="cursor-pointer text-xs text-zinc-600">Edit config</summary>
+                    <form action={saveSourceConfig} className="mt-1 w-72 space-y-1">
+                      <input type="hidden" name="id" value={s.id} />
+                      <textarea
+                        name="config"
+                        rows={5}
+                        defaultValue={JSON.stringify(
+                          Object.fromEntries(Object.entries(parseJson<Record<string, unknown>>(s.config, {})).filter(([k]) => !RUNNER_KEYS.includes(k))),
+                          null,
+                          2,
+                        )}
+                        className="w-full rounded border border-zinc-300 px-2 py-1 font-mono text-xs"
+                      />
+                      {CONFIG_HINTS[s.name] && <div className="text-xs text-zinc-500">Keys: {CONFIG_HINTS[s.name]}</div>}
+                      <button className="rounded border border-zinc-300 px-2 py-0.5 text-xs hover:bg-zinc-100">Save config</button>
+                    </form>
+                  </details>
                 </td>
               </tr>
             );

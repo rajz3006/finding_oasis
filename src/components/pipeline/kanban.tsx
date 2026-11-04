@@ -15,6 +15,12 @@ export interface Card {
   criteria: number[];
   deadline: string | null;
   date: string | null;
+  brand: number;
+  brandEstimated: boolean;
+  eb1a: number;
+  penalized: boolean;
+  invitation: boolean;
+  completion: boolean;
 }
 
 const LANES = ["shortlisted", "applied", "accepted", "completed", "dropped"];
@@ -31,6 +37,7 @@ export function Kanban({ cards }: { cards: Card[] }) {
     start(async () => {
       await movePursuit(id, state);
       if (state === "completed") setPrompt(id);
+      else setPrompt((cur) => (cur === id ? null : cur));
       router.refresh();
     });
   }
@@ -39,7 +46,14 @@ export function Kanban({ cards }: { cards: Card[] }) {
     <div className={pending ? "opacity-70" : ""}>
       {prompt && (
         <div role="dialog" className="mb-4 flex items-center gap-3 rounded border border-emerald-400 bg-emerald-50 p-3 text-sm dark:bg-emerald-950">
-          <span>Completed. Attach proof now?</span>
+          <span>
+            Completed. Attach proof now?
+            {!cards.find((c) => c.id === prompt)?.completion && (
+              <strong className="ml-1 text-amber-700 dark:text-amber-300">
+                No completion proof: invitation without completion proof gets 0.3x and is not full credit.
+              </strong>
+            )}
+          </span>
           <Link href={`/evidence/pursuit/${prompt}`} className="font-medium underline">Open evidence checklist</Link>
           <button onClick={() => setPrompt(null)} className="ml-auto underline">Later</button>
         </div>
@@ -73,6 +87,11 @@ export function Kanban({ cards }: { cards: Card[] }) {
                       {c.criteria.map((n) => `C${n}`).join(" ") || "no criteria"}
                       {c.deadline ? ` · due ${c.deadline}` : ""}{c.date ? ` · ${c.date}` : ""}
                     </div>
+                    <div className="mt-1 flex gap-2 text-xs" title="Independent scores: never merged">
+                      <span>Brand {c.brand}{c.brandEstimated ? "~" : ""}</span>
+                      <span className={c.penalized ? "text-red-600" : ""}>EB-1A {c.eb1a}{c.penalized ? " (0.3x)" : ""}</span>
+                    </div>
+                    {c.state === "completed" && !c.completion && <div className="text-[11px] font-medium text-amber-700 dark:text-amber-300">No completion proof</div>}
                     <div className="mt-2 flex flex-wrap gap-1">
                       {LANES.filter((l) => l !== lane).map((l) => (
                         <button key={l} onClick={() => move(c.id, l)} title={`Move to ${l}`} className="rounded border border-zinc-300 px-1 text-[11px] hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800">

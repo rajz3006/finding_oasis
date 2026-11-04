@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { ensureSeeded } from "@/lib/seed";
 import { EFFORTS, OPP_TYPES, QUALITY_TIERS, isOneOf } from "@/lib/enums";
 import { parseIntArray } from "@/lib/json";
+import { derivePrestige, estimateBrandScore, opportunityLeverage, weightFor } from "@/lib/rubric";
 import { shortlist } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   const tier = one(sp.tier);
   const effort = one(sp.effort);
   const win = one(sp.window);
+  const sort = one(sp.sort) === "leverage" ? "leverage" : "";
   const hideAvoid = one(sp.hideAvoid) === "1";
 
   const where: Prisma.OpportunityWhereInput = {};
@@ -41,7 +43,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   if (criterion) rows = rows.filter((o) => parseIntArray(o.criterionIds).includes(criterion));
   // High tier first, avoid-flagged last, then nearest deadline (no deadline last).
   const key = (o: (typeof rows)[number]) => (o.venue?.avoidFlag ? 10 : 0) + (TIER_RANK[o.venue?.qualityTier ?? "unrated"] ?? 4);
-  rows.sort((a, b) => key(a) - key(b) || (a.deadline?.getTime() ?? Infinity) - (b.deadline?.getTime() ?? Infinity));
+  const lev = new Map(rows.map((o) => {
+    const ids = parseIntArray(o.criterionIds);
+    const brand = estimateBrandScore({ type: o.type, criterionIds: ids, prestige: derivePrestige(o.venue) });
+    return [o.id, { brand, w: ids.length ? Math.max(...ids.map(weightFor)) : 0, v: opportunityLeverage(brand, ids) }] as const;
+  }));
+  if (sort === "leverage") rows.sort((a, b) => lev.get(b.id)!.v - lev.get(a.id)!.v || key(a) - key(b));
+  else rows.sort((a, b) => key(a) - key(b) || (a.deadline?.getTime() ?? Infinity) - (b.deadline?.getTime() ?? Infinity));
 
   return (
     <>
@@ -57,6 +65,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
         <Sel name="tier" value={tier} opts={QUALITY_TIERS.map((t) => [t, t])} any="Any tier" />
         <Sel name="window" value={win} opts={Object.entries(WINDOWS)} any="Any deadline" />
         <Sel name="effort" value={effort} opts={EFFORTS.map((t) => [t, t])} any="Any effort" />
+        <select name="sort" defaultValue={sort} className={inputCls + " !w-auto"}>
+          <option value="">Sort: tier / deadline</option>
+          <option value="leverage">Sort: leverage</option>
+        </select>
         <label className="flex items-center gap-1"><input type="checkbox" name="hideAvoid" value="1" defaultChecked={hideAvoid} /> Hide avoid</label>
         <button className={btnCls}>Filter</button>
         <Link href="/opportunities" className="px-2 py-1.5 underline">Reset</Link>
@@ -80,6 +92,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
                 {crit.map((c) => <Badge key={c} className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">C{c}</Badge>)}
                 <span className={past ? "text-red-600" : ""}>Deadline: {fmtDate(o.deadline)}{past ? " (past)" : ""}</span>
                 <span>Effort: {o.effort}</span>
+                <span title="Brand estimate x EB-1A criterion weight">Leverage ~{lev.get(o.id)!.v} (brand {lev.get(o.id)!.brand} x {lev.get(o.id)!.w})</span>
                 <span>{o.statusCatalog}</span>
                 {o.url && <a href={o.url} target="_blank" rel="noreferrer" className="underline">link</a>}
                 <span className="ml-auto">

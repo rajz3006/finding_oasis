@@ -9,6 +9,13 @@ const SCHEDULE: Record<string, string> = {
   Crossref: "30 6 * * 1",
   DOAJ: "45 6 1 * *",
   GitHub: "0 7 * * *",
+  arXiv: "20 7 * * 2",
+  "NSF Awards": "40 7 1 * *",
+  GDELT: "0 8 * * 3",
+  "Google Alerts": "0 9 * * *",
+  "GitHub Profile": "10 7 * * *",
+  "Site Analytics": "20 7 * * *",
+  "Newsletter RSS": "30 7 * * 1",
 };
 
 ensureSeeded().then(() => {

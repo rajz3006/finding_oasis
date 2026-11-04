@@ -3,7 +3,7 @@ import path from "node:path";
 import { Prisma } from "@prisma/client";
 import { db } from "./db";
 import { serializeIntArray, serializeStringArray } from "./json";
-import { isOneOf, QUALITY_TIERS } from "./enums";
+import { INDEPENDENCE, isOneOf, QUALITY_TIERS } from "./enums";
 import type { SeedVenue } from "./scoring";
 
 /** Default starter opportunity (type, title) for a seed venue. Deadlines stay null. */
@@ -67,6 +67,7 @@ async function seedVenuesOnce(): Promise<{ venues: number; opportunities: number
       homepage: s.homepage ?? null,
       fieldTags: serializeStringArray(s.fieldTags ?? []),
       notes: s.notes ?? null,
+      independenceHint: isOneOf(INDEPENDENCE, s.independenceHint) ? s.independenceHint : null,
     };
     let venue = byName.get(s.name.trim().toLowerCase());
     if (!venue) {
@@ -75,6 +76,9 @@ async function seedVenuesOnce(): Promise<{ venues: number; opportunities: number
       venues++;
     } else if (venue.qualityTier === "unrated" && tier !== "unrated") {
       venue = await db.venue.update({ where: { id: venue.id }, data: { qualityTier: tier, avoidFlag: venue.avoidFlag || !!s.avoidFlag } });
+    }
+    if (!venue.independenceHint && data.independenceHint) {
+      venue = await db.venue.update({ where: { id: venue.id }, data: { independenceHint: data.independenceHint } });
     }
 
     if (s.avoidFlag) continue; // no starter opportunities on avoid-flagged venues

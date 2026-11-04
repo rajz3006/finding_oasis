@@ -18,6 +18,7 @@ export interface SeedVenue {
   criterionIds?: number[];
   aliases?: string[];
   notes?: string | null;
+  independenceHint?: string | null;
 }
 interface AvoidList {
   hosts?: string[];

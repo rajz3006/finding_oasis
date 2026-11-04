@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { AvoidBadge, CriteriaChecks, Field, TierBadge, btnPrimaryCls, dateInputValue, inputCls } from "@/components/ui";
-import { PURSUIT_STATES, STRENGTHS } from "@/lib/enums";
+import { STRENGTHS } from "@/lib/enums";
 import { parseIntArray } from "@/lib/json";
 import { getPursuit } from "@/lib/data";
 import { ensureSeeded } from "@/lib/seed";
+import { ScoreFields } from "@/components/pipeline/score-fields";
+import { scoreView } from "@/lib/pursuit-view";
 import { savePursuit } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -25,10 +27,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       {v?.avoidFlag && <div className="mb-4"><AvoidBadge /> Coverage is never counted on avoid-flagged evidence.</div>}
       <form action={savePursuit} className="max-w-2xl space-y-4">
         <input type="hidden" name="id" value={p.id} />
+        <ScoreFields
+          id={p.id} state={p.state} brandScore={p.brandScore} independence={p.independence}
+          invitation={p.invitationProof} completion={p.completionProof} thirdParty={p.thirdPartyProof}
+          initial={scoreView(p, p.opportunity, v ?? null)}
+        />
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="State">
-            <select name="state" defaultValue={p.state} className={inputCls}>{PURSUIT_STATES.map((s) => <option key={s}>{s}</option>)}</select>
-          </Field>
           <Field label="Strength">
             <select name="strength" defaultValue={p.strength ?? ""} className={inputCls}>
               <option value="">(unset)</option>{STRENGTHS.map((s) => <option key={s}>{s}</option>)}

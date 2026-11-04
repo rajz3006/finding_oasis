@@ -23,6 +23,8 @@ model Venue {
   homepage      String?
   fieldTags     String        @default("[]")      // JSON array of domain tags
   notes         String?
+  independenceHint String?    // independent | mixed | interested (seeds rubric independence)
+  prestige      String?       // flagship | recognized | regional | local (optional override of qualityTier)
   opportunities Opportunity[]
   createdAt     DateTime      @default(now())
 }
@@ -69,6 +71,11 @@ model Pursuit {
   decidedOn     DateTime?
   completedOn   DateTime?
   notes         String?
+  brandScore    Int?        // 0-100 brand impact; null = estimated
+  invitationProof Boolean   @default(false)
+  completionProof Boolean   @default(false)
+  thirdPartyProof Boolean   @default(false)
+  independence  String      @default("mixed") // independent | mixed | interested
   evidence      Evidence[]
   createdAt     DateTime    @default(now())
 }
@@ -102,5 +109,49 @@ model Profile {
   orcid     String   @default("")
   email     String   @default("")
   fieldTags String   @default("[\"data engineering\",\"data product management\",\"analytics\",\"data management\"]")
+  positioning String?             // one-line positioning statement
+  pillars     String   @default("[]") // JSON array of 2-3 content pillars
+  cadenceNotes String?
   updatedAt DateTime @updatedAt
+}
+
+// A brand channel (owned or earned).
+model Channel {
+  id        String        @id @default(cuid())
+  name      String
+  type      String        // site | newsletter | linkedin | x | github | youtube | podcast
+  ownership String        @default("owned") // owned | earned
+  url       String?
+  metrics   ReachMetric[]
+  createdAt DateTime      @default(now())
+}
+
+// Reach time series point for a Channel.
+model ReachMetric {
+  id             String   @id @default(cuid())
+  channel        Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId      String
+  date           DateTime
+  followers      Int      @default(0)
+  impressions    Int      @default(0)
+  engagementRate Float    @default(0) // percent, e.g. 3.2
+  inboundCount   Int      @default(0)
+  notes          String?
+
+  @@index([channelId, date])
+}
+
+// A recommender / letter-writer (CRM).
+model Recommender {
+  id            String    @id @default(cuid())
+  name          String
+  role          String    @default("")
+  org           String    @default("")
+  relationship  String    @default("")
+  independent   Boolean   @default(false)
+  status        String    @default("identified") // identified | contacted | agreed | letter_received | declined
+  lastContacted DateTime?
+  nextNudge     DateTime?
+  notes         String?
+  createdAt     DateTime  @default(now())
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { ensureSeeded } from "@/lib/seed";
 import { CATALOG_STATUSES, CRITERION_IDS, EFFORTS, OPP_TYPES, QUALITY_TIERS, STRENGTHS, VENUE_KINDS, isOneOf } from "@/lib/enums";
+import { parseBrand, parseIndependenceInput, parseProofs } from "@/lib/pursuit-input";
 import { parseDate, parseIntArray, serializeIntArray, serializeStringArray } from "@/lib/json";
 
 const str = (fd: FormData, k: string) => {
@@ -77,6 +78,7 @@ export async function saveAchievement(fd: FormData) {
   const data = await oppData(fd);
   const strength = str(fd, "strength");
   const opp = await db.opportunity.create({ data: { ...data, statusCatalog: "closed", sourceId: await manualSourceId() } });
+  const proofs = parseProofs(fd);
   const completedOn = parseDate(str(fd, "completedOn")) ?? new Date();
   const p = await db.pursuit.create({
     data: {
@@ -86,6 +88,11 @@ export async function saveAchievement(fd: FormData) {
       strength: isOneOf(STRENGTHS, strength) ? strength : null,
       completedOn,
       notes: str(fd, "notes"),
+      brandScore: parseBrand(fd.get("brandScore")),
+      independence: parseIndependenceInput(fd.get("independence")),
+      invitationProof: proofs.invitation,
+      completionProof: proofs.completion,
+      thirdPartyProof: proofs.thirdParty,
     },
   });
   revalidatePath("/opportunities");

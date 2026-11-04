@@ -5,3 +5,6 @@ export * from "./evidence";
 export * from "./criteria";
 export * from "./sources";
 export * from "./profile";
+export * from "./channels";
+export * from "./reach";
+export * from "./recommenders";

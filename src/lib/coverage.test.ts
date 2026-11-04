@@ -58,4 +58,17 @@ describe("nearest wins", () => {
     const w = nearestWins(cov, [], now);
     expect(w.map((x) => x.criterionId)).toEqual([5, 7, 4, 3]);
   });
+  it("ranks by combined leverage (brand x merits weight) before tier", () => {
+    const best = bestOpportunity(6, [
+      opp({ id: "review", type: "judge_review", venueTier: "T1", deadline: null }),
+      opp({ id: "article", type: "publish_article", venueTier: "T1" }),
+    ], now);
+    expect(best?.id).toBe("article");
+  });
+  it("attaches both scores", () => {
+    const cov = deriveCoverage([]);
+    const w = nearestWins(cov, [opp({ type: "publish_article", venueTier: "T1" })], now).find((x) => x.criterionId === 6)!;
+    expect(w.scores).toMatchObject({ brand: 65, meritsWeight: 0.6, leverage: 39 });
+    expect(nearestWins(cov, [], now)[0].scores).toBeNull();
+  });
 });

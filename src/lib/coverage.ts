@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { parseIntArray } from "./json";
 import { CRITERION_IDS, type Strength } from "./enums";
+import { derivePrestige, estimateBrandScore, opportunityLeverage, weightFor, type PrestigeTier } from "./rubric";
 
 export const TARGET = 3;
 export const COMFORTABLE = 5;
@@ -105,6 +106,19 @@ export interface CandidateOpp {
   venueTier: string;
   venueAvoid: boolean;
   activePursuit: boolean; // already shortlisted/applied/accepted/completed
+  prestige?: PrestigeTier; // derived from venue; defaults to tier mapping
+}
+
+/** Both scores for a candidate: brand impact, EB-1A merits weight, and combined leverage (all 0-100 / 0-1). */
+export interface CandidateScores {
+  brand: number;
+  meritsWeight: number;
+  leverage: number;
+}
+export function candidateScores(o: CandidateOpp, criterionId: number): CandidateScores {
+  const prestige = o.prestige ?? derivePrestige({ qualityTier: o.venueTier, avoidFlag: o.venueAvoid });
+  const brand = estimateBrandScore({ type: o.type, criterionIds: [criterionId], prestige });
+  return { brand, meritsWeight: weightFor(criterionId), leverage: opportunityLeverage(brand, [criterionId]) };
 }
 
 export interface NearestWin {
@@ -112,11 +126,12 @@ export interface NearestWin {
   count: number;
   strength: Strength | null;
   opportunity: CandidateOpp | null;
+  scores: CandidateScores | null;
 }
 
 const TIER_RANK: Record<string, number> = { T1: 5, T2: 4, curated: 3, T3: 2, unrated: 1 };
 
-/** Pure: best next opportunity for a criterion (highest tier, non-avoid, nearest future deadline). */
+/** Pure: best next opportunity for a criterion - highest combined leverage, then tier, then nearest deadline. */
 export function bestOpportunity(criterionId: number, opps: CandidateOpp[], now = new Date()): CandidateOpp | null {
   const ok = opps.filter(
     (o) =>
@@ -126,7 +141,10 @@ export function bestOpportunity(criterionId: number, opps: CandidateOpp[], now =
       o.statusCatalog !== "closed" &&
       (!o.deadline || o.deadline >= now),
   );
+  const lev = new Map(ok.map((o) => [o.id, candidateScores(o, criterionId).leverage]));
   ok.sort((a, b) => {
+    const l = lev.get(b.id)! - lev.get(a.id)!;
+    if (l) return l;
     const t = (TIER_RANK[b.venueTier] ?? 0) - (TIER_RANK[a.venueTier] ?? 0);
     if (t) return t;
     const da = a.deadline?.getTime() ?? Infinity;
@@ -140,7 +158,10 @@ export function bestOpportunity(criterionId: number, opps: CandidateOpp[], now =
 export function nearestWins(coverage: Coverage, opps: CandidateOpp[], now = new Date()): NearestWin[] {
   return PRIORITY_CRITERIA.map((id) => coverage.criteria.find((c) => c.id === id)!)
     .filter((c) => c.count === 0 || c.strength === "thin")
-    .map((c) => ({ criterionId: c.id, count: c.count, strength: c.strength, opportunity: bestOpportunity(c.id, opps, now) }));
+    .map((c) => {
+      const opportunity = bestOpportunity(c.id, opps, now);
+      return { criterionId: c.id, count: c.count, strength: c.strength, opportunity, scores: opportunity ? candidateScores(opportunity, c.id) : null };
+    });
 }
 
 export async function getCandidateOpps(): Promise<CandidateOpp[]> {
@@ -158,5 +179,6 @@ export async function getCandidateOpps(): Promise<CandidateOpp[]> {
     venueTier: o.venue?.qualityTier ?? "unrated",
     venueAvoid: !!o.venue?.avoidFlag,
     activePursuit: o.pursuits.some((p) => p.state !== "dropped"),
+    prestige: derivePrestige(o.venue),
   }));
 }

@@ -23,6 +23,13 @@ export const SOURCE_SEEDS: { name: string; access: SourceAccess }[] = [
   { name: "ORCID", access: "api" },
   { name: "Semantic Scholar", access: "api" },
   { name: "PatentsView", access: "api" },
+  { name: "arXiv", access: "api" },
+  { name: "NSF Awards", access: "api" },
+  { name: "GDELT", access: "api" },
+  { name: "Google Alerts", access: "api" },
+  { name: "GitHub Profile", access: "api" },
+  { name: "Site Analytics", access: "api" },
+  { name: "Newsletter RSS", access: "api" },
 ];
 
 export async function seedCriteria(): Promise<number> {

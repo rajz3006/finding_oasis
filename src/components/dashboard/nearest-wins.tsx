@@ -6,6 +6,7 @@ export function NearestWins({ wins, names }: { wins: NearestWin[]; names: Record
   return (
     <section className="mt-8">
       <h2 className="mb-2 text-lg font-semibold">Nearest wins</h2>
+      <p className="mb-2 text-xs text-zinc-500">Ranked by combined leverage = brand impact x EB-1A merits weight.</p>
       <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {wins.map((w) => (
           <li key={w.criterionId} className="rounded border border-zinc-200 p-3 text-sm dark:border-zinc-800">
@@ -21,6 +22,13 @@ export function NearestWins({ wins, names }: { wins: NearestWin[]; names: Record
                   {w.opportunity.venueTier}
                   {w.opportunity.deadline ? ` - due ${w.opportunity.deadline.toISOString().slice(0, 10)}` : " - no deadline listed"}
                 </div>
+                {w.scores && (
+                  <div className="mt-1 flex gap-3 text-xs">
+                    <span title="Estimated brand impact">Brand {w.scores.brand}</span>
+                    <span title="EB-1A final-merits weight of this criterion">EB-1A {Math.round(w.scores.meritsWeight * 100)}</span>
+                    <span className="font-semibold" title="Brand x merits weight">Leverage {w.scores.leverage}</span>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="mt-1 text-zinc-500">No open opportunity in the catalog yet.</div>

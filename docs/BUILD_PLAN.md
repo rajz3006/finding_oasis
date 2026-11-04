@@ -14,6 +14,21 @@ A single-user web app that turns EB-1A profile-building from a scattered checkli
 - **Design stance:** ship the smallest genuinely useful version first, then add source connectors one at a time. Manual entry is a first-class path, not a fallback.
 - **Non-goals (v1):** legal advice, petition or letter drafting, collaboration, a native mobile app, and anything requiring someone else's login.
 
+## Personal brand is the frame
+
+The real goal is building my personal brand as a leader in data engineering and data product management. EB-1A is an *outcome* of that brand, not the other way around. This reframes the app: the same activities - publishing, speaking, open source, judging, press, community - build an owned audience **and** produce EB-1A evidence. The app is a personal-brand operating system with EB-1A as one built-in scoring lens.
+
+**Dual scoring.** Every opportunity and pursuit is scored on two axes, not one:
+
+- **Brand impact** - reach, audience growth, and positioning fit (does it build what I want to be known for?).
+- **EB-1A weight** - which criterion it satisfies and at what quality tier.
+
+Most high-value activities score on both. The dashboard shows both, so I optimize for brand first and let EB-1A evidence accrue as a byproduct.
+
+**What the brand frame adds** beyond the EB-1A plan: a positioning narrative ("what I'm known for"), content pillars and a publishing cadence, owned channels (personal site, newsletter, LinkedIn, X, GitHub, talks), and reach/engagement metrics tracked over time. These become first-class: a new **Channel** entity and reach metrics in the data model, and a brand-growth view beside criteria coverage on the dashboard.
+
+*Deeper specifics - brand frameworks, channel strategy, measurement, EB-1A evidentiary rigor, connector specs, and a competitive teardown - are being researched now and will be folded into this plan.*
+
 ## Starting from zero
 
 I am building this with no evidence yet, which suits the app: it is a build-from-zero engine, not a tracker of existing wins. Two consequences shape v1.
@@ -412,3 +427,166 @@ A handful of choices change what the orchestrator builds. My recommendation is i
 7. **Connector priority** - confirm the P1 set (developers.events, OpenAlex, Crossref/DOAJ, GitHub) is the right first four, or reorder.
 
 Answer 2 and 5 and I can turn this into the starter repo files whenever you want to move from plan to build.
+
+## Enhancements (v2 - additive)
+
+These build on the plan above without changing it. v1 (Phases 0-3) proceeds as-is; everything here layers on afterward, so the in-flight build is not disrupted. Each subsection fills in as its research agent reports.
+
+### Brand strategy & channels
+
+The play from zero: own a narrow wedge (a *concept*, not a job title), commit to 2-3 content pillars, and run a repeatable content system. Consistency over 12 months beats intensity over 12 weeks.
+
+**Positioning & pillars.** Become the name for an ownable sliver - the way Chad Sanderson came to own "data contracts" ([O'Reilly](https://www.oreilly.com/library/view/data-contracts/9781098157623/colophon01.html)). A workable pillar set for this field: deep craft (architecture, cost, reliability, data modeling), sharp opinion (build-vs-buy, data-as-a-product - the posts that get shared), and building-in-public (what you shipped, the mistakes). Recognition lags volume x consistency x narrowness: months 1-3 show up in one channel; 3-9 publish signature long-form and start getting cited; 9-18 speaking and inbound ([Data Engineer Academy](https://dataengineeracademy.com/blog/building-a-personal-brand-as-a-data-engineering-professional/)).
+
+**Channels** (role, effort, how a data-eng/PM person wins)
+
+| Channel | Role | Effort | Win |
+| --- | --- | --- | --- |
+| LinkedIn | #1 discovery + inbound for data/B2B | 3-5 posts/wk | Text posts + carousels + "how we cut X"; where data-eng brands are built today |
+| GitHub | Proof-of-work credibility substrate | Ongoing | Strong profile README + 1-2 genuinely useful repos (a dbt package, a reference pipeline) |
+| Personal site/blog | Owned hub + durable SEO asset | 1 post / 2-4 wks | Technical teardowns with diagrams and benchmarks rank for years |
+| Newsletter | Highest-ownership audience (email = yours) | 1 issue / 1-2 wks | Repackage blog + curated links + one opinion |
+| X/Twitter | Tight expert community, peer credibility | Daily-ish, low effort | "Data Twitter" for relationships and reach; weaker for job inbound |
+| Conference talks | Authority spike + EB-1A evidence | High, episodic | Meetup -> regional -> Data Council / Coalesce / Big Data LDN |
+| Podcasts (guest) | Borrowed audience, fast trust | 1-2/mo | Pitch a contrarian angle, not "my career" |
+| YouTube | Highest effort, highest moat | Very high | Tutorials + career advice (cf. Seattle Data Guy); invest last |
+
+Sequencing from zero: **LinkedIn + GitHub first**, then a blog as the durable layer, a newsletter once you have monthly long-form, podcasts/talks once you have a POV, YouTube last. Don't open every channel at once.
+
+**The 1-to-many engine.** Produce one pillar asset, then shatter it into channel-native pieces. The data-eng waterfall: real work (a project or sanitized work problem) -> clean OSS repo + README -> blog teardown -> talk/slides -> LinkedIn carousel + X thread -> newsletter issue -> optional screen-record video. One serious piece of work feeds 4-8 weeks of distribution - the single highest-leverage habit. Cadence with a full-time job: daily 10-15 min on LinkedIn (comments build network faster than posts early); weekly 2-3 hrs for one substantial post + ship something to GitHub; monthly one pillar asset, then atomize; quarterly one talk proposal + one podcast pitch. Batch and schedule to survive 12 months.
+
+**KPIs & year-1 targets** (from a true zero base; weight owned audience + inbound over vanity followers)
+
+| Metric | Year-1 target |
+| --- | --- |
+| LinkedIn followers | 2,000-5,000 |
+| Newsletter subscribers | 300-1,000 |
+| X followers | 500-2,000 |
+| GitHub followers / stars | 100-500 / one repo >100 stars |
+| Output | 150+ posts, 12+ long-form, 12+ issues |
+| LinkedIn engagement rate | 2-5%+ |
+| Monthly reach | 50k-250k by month 12 |
+| Name on Google p.1 | Site, LinkedIn, GitHub, a talk, an article you control |
+| Inbound opportunities | 1-2/mo by year-end |
+| Talks / external articles | 2-4 talks, 3+ articles |
+
+**Exemplars and their actual tactics:** Benjamin Rogojan (Seattle Data Guy) - YouTube tutorials + career content as the anchor, converted to consulting. Zach Wilson (eczachly) - high-frequency opinionated LinkedIn -> newsletter -> paid bootcamp. Benn Stancil - one weekly analytical essay, won on quality of thinking. Joe Reis & Matt Housley - a canonical book (*Fundamentals of Data Engineering*) + podcast. Chad Sanderson - owned one concept, then book + company. The pattern: narrow wedge, one anchor artifact, relentless consistency, a podcast/speaking layer to borrow audiences.
+
+**Highest-leverage moves from zero:** (1) write a one-line positioning statement around one ownable concept; (2) fix 2-3 pillars and post only within them; (3) start daily on LinkedIn + polish GitHub; (4) ship one genuinely useful OSS repo; (5) start a monthly pillar artifact and atomize each into 8+ pieces; (6) launch a newsletter early; (7) submit one talk and one podcast pitch per quarter; (8) deliberately pursue a judging role - low effort, cleanly feeds EB-1A and most people never think to; (9) write for recognized trade outlets (Towards Data Science, InfoQ, O'Reilly); (10) instrument the dashboard from day one on owned-audience + inbound + name-search, not vanity metrics.
+
+### Dual-scoring & brand data model
+
+Every opportunity and pursuit carries **two independent scores**: a **brand impact** score (reach, authority, positioning fit) and an **EB-1A evidentiary strength** score (the Layer A score below, rolled to its criterion). Keep them independent - brand reach never substitutes for EB-1A corroboration, and criteria count never hides weak merits.
+
+**Data-model additions** (additive to the v1 schema; the in-flight build is unaffected):
+
+- **Channel** - `id, name, type (site | newsletter | linkedin | x | github | youtube | podcast), ownership (owned | earned), url`.
+- **ReachMetric** - `channel_id, date, followers, impressions, engagement_rate, inbound_count` - a time series that powers the brand-growth view.
+- **Pursuit** gains `brand_score (0-100)`, a **corroboration checklist** (`invitation_proof, completion_proof, third_party_proof` booleans), and an `independence (independent | mixed | interested)` field - these feed the EB-1A rubric directly.
+- **Venue** already has `quality_tier`; add an `independence_hint` to seed the rubric's independence factor.
+
+**Dashboard, two lenses:**
+
+- **Criteria readiness** - gate 1 (count of met criteria) and gate 2 (final-merits proxy) with the readiness tier, so a high count never masks thin merits.
+- **Brand growth** - the KPI time series (followers, reach, engagement, inbound, name-search presence) drawn from ReachMetric.
+
+**Nearest-wins ranking** orders suggested opportunities by **combined leverage = brand impact x EB-1A final-merits weight**, so the app steers toward activities that do double duty: judging and authorship as fast *entry* criteria, and original-contributions/OSS and press as the *merits-movers* that also build reach.
+
+### EB-1A quality rubric
+
+EB-1A is won or lost at the second step, so the app must model evidence *quality*, not just count criteria. Under the two-step *Kazarian* analysis: **Step 1** checks the plain language of each criterion (meet >=3); **Step 2, final merits**, holistically asks whether the record shows sustained acclaim and top-of-field standing. *Amin v. Mayorkas* (5th Cir. 2022) upheld a denial of someone who met 3 criteria - final merits is an independent, dispositive gate. (This informs software logic; it is not legal advice.)
+
+**Where tech petitions fail** (AAO engineering-appeal patterns): final-merits / top-of-field is \~46% of merits dismissals, and **original contributions of major significance (criterion 5)** is the single most-failed criterion. Judging (4) and authorship (6) are often met but rarely decisive - they clear Step 1 but don't carry Step 2. So treat 4 and 6 as *entry* criteria and 5, 3, 8 as *merits-movers*.
+
+**Quality principles to encode:** independent, disinterested corroboration beats coauthor/employer letters; venue prestige and selectivity are the dominant axis; an invitation without *completion proof* fails for judging; citations must be benchmarked to field norms and exclude self/coauthor cites; acclaim must be sustained and recent.
+
+**Rubric - Layer A: per-opportunity evidentiary strength (0-100)**
+
+| Factor | Weight | Scored 0-100 by tier |
+| --- | --- | --- |
+| Venue prestige | 0.35 | flagship 100 / recognized 70 / regional 40 / local 15 / pay-to-play 0 |
+| Independence | 0.25 | third-party 100 / mixed 50 / self-employer-coauthor 10 |
+| Corroboration | 0.25 | primary + completion + third-party 100 / partial 50 / assertion or invitation only 10 |
+| Selectivity or reach | 0.15 | benchmarked above field norm / highly selective 100 / moderate 50 / unknown 20 |
+
+Apply a **penalty x0.3** for disqualifiers: pay-to-publish, invitation-without-completion, employer-only award, advertorial press, or a routine job duty logged as judging.
+
+**Layer B - per-criterion rollup.** `criterion_met` = at least one opportunity above a criterion floor (judging \~40; original contributions \~65, a higher bar). `criterion_strength` = best + 0.5 x second + 0.25 x third, capped at 100 (rewards depth, not volume). Weight criteria by final-merits leverage, not equally: original contributions 1.0, published-about-you 0.9, awards 0.85, critical role 0.8, authorship 0.6, membership 0.6, salary 0.6, judging 0.5, display/commercial 0.3.
+
+**Layer C - petition readiness (two independent gates, both always shown).** Gate 1 = count of met criteria (must be >=3). Gate 2 = weighted average of criterion\_strength x final-merits weight over met criteria, adjusted by a sustained-recency factor and a portfolio **independence ratio**. Tiers: *Not ready* (<3); *Meets criteria, weak merits* (>=3 but low gate 2 - the Amin risk zone; flag for quality, not more criteria); *Competitive*; *Strong* (>=4, high gate 2 and independence).
+
+**Build implications:** a per-opportunity **corroboration checklist** (invitation / completion / third-party) that refuses full credit until completion proof exists; an **independence ratio** tracked as a first-class portfolio metric (the strongest single proxy for final-merits success); and an explicit warning that the buildable-from-zero criteria (judging, authorship, OSS) score low on gate 2 unless paired with independent impact evidence (benchmarked citations, named external adopters, standards incorporation).
+
+*Sources: [USCIS Policy Manual Vol. 6 Pt. F](https://www.uscis.gov/policy-manual/volume-6-part-f), [8 CFR 204.5(h)](https://www.law.cornell.edu/cfr/text/8/204.5), Kazarian v. USCIS (9th Cir. 2010), Amin v. Mayorkas (5th Cir. 2022). Informs software, not legal advice.*
+
+### Connector specs
+
+Build connectors in reliability order. Most EB-1A evidence sources are keyless or one free token; the two biggest brand platforms are the least accessible - plan manual entry there. Verify exact limits on first live call.
+
+**Tier 1 - keyless, stable, build first**
+
+| Source | Notes & limit | Value |
+| --- | --- | --- |
+| developers.events | static JSON (all-events / all-cfps), no limit; use the `untilDate` epoch, not the date string | CFPs + talks (6, 7) |
+| OpenAlex | no key (+ `mailto`); 100k/day, 10/s; cursor paging | journals + citations (5, 6) |
+| Crossref | no key (+ `mailto`); cursor paging | DOI/citation corroboration (6) |
+| arXiv | no key; \~1 req/3s; returns XML | preprints (5, 6) |
+| DOAJ | no key; \~2/s | venue-legitimacy check (6) |
+| NSF Awards | no key; JSON, offset by 25 | grants / PI evidence (4, 5) |
+| Grants.gov search2 | no key (POST); confirm field names live | funding (5) |
+| GDELT | no key; \~1/few-sec; maxrecords 250 | news / name mentions (3) |
+| Codeforces | no key; \~1/s | only if you compete (1) |
+
+**Tier 2 - one free token/OAuth, then automatable**
+
+| Source | Auth & limit | Value |
+| --- | --- | --- |
+| GitHub (issues + profile) | free PAT; search 30/min, core 5000/hr; GraphQL for contributions | OSS issues (5) + stars/followers/contributions (reach) |
+| ORCID public API | free OAuth client; \~24/s | **peer-review records = gold for judging (4)**; works (6) |
+| Semantic Scholar | free key (email approval); \~1/s | influentialCitationCount (5, 6) |
+| PatentsView | free key required (`X-Api-Key`); 45/min; assignee index buggy | patents (5), if any |
+| Kaggle | free `kaggle.json` token | your medals / votes / ranks (1, 5) |
+| Plausible / Umami (self-hosted) | self-issued token; install on your site first | **the one reach source you fully control** |
+| Google Alerts RSS | one-time manual alert -> keyless RSS polling | free name-mention monitor (3) |
+| Newsletter RSS | keyless if a feed exists; engagement analytics only if the platform has an API (Kit / Mailchimp / beehiiv yes, Substack no) | output cadence + reach |
+
+**Tier 3 - paid / restricted / effectively manual**
+
+| Source | Reality (2026) |
+| --- | --- |
+| LinkedIn API | posting is automatable (60-day manual re-auth); **follower/engagement analytics are not available to individuals - enter manually** |
+| X / Twitter API | no free tier; pay-per-use (\~$0.001 per own-read); build only if you already fund a dev account, else use native analytics |
+| Listen Notes | free tier only 150 requests/month - near-manual lookups; paid ($200) not worth it for one person |
+
+**Honest callouts:** the strongest *automatable* EB-1A streams are ORCID peer-reviews (4), GitHub contributions (5), and OpenAlex citations (5, 6). The strongest *reach* source you control is self-hosted analytics (Plausible/Umami) - stand it up on the personal site first. LinkedIn and X reach are effectively manual; design those as manual-entry fields, not connectors.
+
+*Sources: [developers.events repo](https://github.com/scraly/developers-conferences-agenda), [PatentsView Search API](https://search.patentsview.org/docs/), [Semantic Scholar API](https://www.semanticscholar.org/product/api), [GitHub Search](https://docs.github.com/en/rest/search/search), [Grants.gov API guide](https://grants.gov/api/api-guide), [NSF Award API](https://resources.research.gov/common/webapi/awardapisearch-v1.htm), [Plausible Stats API](https://plausible.io/docs/stats-api).*
+
+### Competitive insights & v1 feature priorities
+
+The category splits into two halves nobody has joined: tools that **find EB-1A opportunities** (Ensol, Immigration Jason) and tools that **build a personal brand** (Taplio, Shield, Authory). Our wedge is uniting them with dual scoring, niched to data engineering / data PM.
+
+**Ensol, read from the outside.** A paid, login-gated app tagged "Build your Thought Leadership." Its nav is organized by evidence type (Conferences, Abstracts, Hackathons, Media, Journals, Articles, OSS, Achievements, Profile) - essentially a criterion-tagged opportunity feed plus a light achievements log. Strength: opportunity *discovery*, the genuinely hard, high-value part. Gaps: evidence-tracking looks secondary, no petition-grade exhibit vault, no brand/content layer, no public pricing or reviews.
+
+**Adjacent competitors.**
+
+- **LevelUp (EB1A Experts)** - the most complete software competitor: readiness score, criterion mapping with gap flags, an evidence hub organized by criterion with attorney-exportable summaries, AI drafting. ([eb1aexperts.com](https://eb1aexperts.com/levelup-eb1a-tool-build-winning-visa-profile-with-ai))
+- **Immigration Jason / pulse.bot** - the sourcing model to emulate: a curated 400+ opportunity spreadsheet, community, and a reference-letter-writer network. ([pulse.bot](https://www.pulse.bot))
+- **Drafting-tool cluster** (VisaiPath, EB1A Visa AI, VisaWorker) - early eligibility/drafting assistants that assume you already have the achievements.
+
+**Creator tooling worth borrowing.** [Authory](https://authory.com) - auto-updating archive of everything you publish, so "published material" evidence collects itself. Shield - deep LinkedIn growth analytics that prove reach/impact. Typefully - a low-friction write-schedule-publish composer. Dex - a personal CRM for recommenders. Taplio - AI drafting, as a feature not the product.
+
+**The feature delta (our wedge).** No tool unifies brand-building and EB-1A evidence into one **dual-scored object**. Every activity has a brand value (reach, authority, career capital) and an EB-1A value (which criterion, how strongly). Treat each achievement as one record scored on both axes, optimizing a single funnel: find -> ship -> capture evidence -> publish/amplify -> measure -> map to criterion -> export exhibit. Generic creator tools ignore the visa; EB-1A tools ignore the brand; none is niched to data eng / data PM.
+
+**Ranked features for a world-class lean v1** (irreducible core = 1-4):
+
+1. **Dual-scored Achievement record** (brand score + EB-1A criterion score) - the core object and the whole differentiation.
+2. **Criterion-tagged evidence vault with attorney-ready exhibit export** - the thing applicants pay to keep.
+3. **Readiness / gap dashboard** against the 10 criteria - turns a vague goal into a punch list.
+4. **Curated, data-niche opportunity feed** (CFPs, hackathon judging, peer review, OSS, media) matched to profile - the acquisition hook and hardest-to-copy moat.
+5. Auto-updating published-work archive (Authory-style) - authorship/media evidence collects itself.
+6. Lightweight write-schedule-publish composer - so brand content actually ships.
+7. Growth/impact analytics tied back to achievements - reach as both motivation and "major significance" evidence.
+8. Recommender / reference CRM with nudges - manages the letter-writers a petition lives or dies on.
+
+**New ideas this adds to our plan** (additive, fast-follow): the attorney-ready **exhibit export**, an Authory-style **auto-archive**, and a **recommender CRM** - none were in the original scope, all high-leverage.
