@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 
+// DB-backed pages: never prerender at build.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = { title: "EB-1A Tracker" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

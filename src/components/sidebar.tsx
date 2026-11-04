@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { signOut } from "@/app/auth/actions";
 
 export const NAV = [
   { href: "/", label: "Dashboard" },
@@ -16,6 +17,7 @@ export const NAV = [
 
 export function Sidebar() {
   const path = usePathname();
+  if (path === "/login") return null;
   return (
     <aside className="border-b border-zinc-200 p-4 dark:border-zinc-800 md:w-56 md:border-b-0 md:border-r">
       <div className="mb-4 text-lg font-semibold">EB-1A Tracker</div>
@@ -38,6 +40,9 @@ export function Sidebar() {
           );
         })}
       </nav>
+      <form action={signOut} className="mt-4 border-t border-zinc-200 pt-3 dark:border-zinc-800">
+        <button type="submit" className="px-3 text-sm text-zinc-500 hover:underline">Sign out</button>
+      </form>
     </aside>
   );
 }

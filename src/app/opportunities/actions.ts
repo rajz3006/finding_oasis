@@ -1,4 +1,5 @@
 "use server";
+import { assertUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
@@ -58,6 +59,7 @@ async function manualSourceId() {
 }
 
 export async function saveOpportunity(fd: FormData) {
+  await assertUser();
   const id = str(fd, "id");
   const data = await oppData(fd);
   if (id) await db.opportunity.update({ where: { id }, data });
@@ -67,6 +69,7 @@ export async function saveOpportunity(fd: FormData) {
 }
 
 export async function deleteOpportunityAction(fd: FormData) {
+  await assertUser();
   const id = str(fd, "id");
   if (id && (await db.pursuit.count({ where: { opportunityId: id } })) === 0) await db.opportunity.delete({ where: { id } });
   revalidatePath("/opportunities");
@@ -75,6 +78,7 @@ export async function deleteOpportunityAction(fd: FormData) {
 
 /** Manual opportunity + completed pursuit in one go. */
 export async function saveAchievement(fd: FormData) {
+  await assertUser();
   const data = await oppData(fd);
   const strength = str(fd, "strength");
   const opp = await db.opportunity.create({ data: { ...data, statusCatalog: "closed", sourceId: await manualSourceId() } });
@@ -101,6 +105,7 @@ export async function saveAchievement(fd: FormData) {
 }
 
 export async function shortlist(fd: FormData) {
+  await assertUser();
   const id = str(fd, "id");
   if (!id) return;
   const opp = await db.opportunity.findUnique({ where: { id } });
@@ -115,6 +120,7 @@ export async function shortlist(fd: FormData) {
 }
 
 export async function saveVenue(fd: FormData) {
+  await assertUser();
   const id = str(fd, "id");
   const data = venueData(fd);
   if (id) await db.venue.update({ where: { id }, data });

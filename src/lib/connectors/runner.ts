@@ -3,11 +3,21 @@ import { parseJson, serializeIntArray, toJson } from "@/lib/json";
 import { upsertScoredVenue } from "@/lib/scoring";
 import { getProfile } from "@/lib/data/profile";
 import { getConnector } from "./registry";
-import { timeoutFetch } from "./http";
+import { timeoutFetch, sleep, DEFAULT_TIMEOUT_MS } from "./http";
 import type { RunResult, SourceConfig } from "./types";
 
-/** Run one connector by Source name. Never throws; failures are recorded on the Source. */
-export async function runConnector(sourceName: string, opts: { fetchImpl?: typeof fetch; timeoutMs?: number } = {}): Promise<RunResult> {
+/** Time kept free after a throttle wait for one more request plus DB writes. */
+export const BUDGET_RESERVE_MS = 8_000;
+
+/**
+ * Run one connector by Source name. Never throws; failures are recorded on the Source.
+ * `deadline` (epoch ms) is a soft time budget: throttle waits that would overrun it stop the connector
+ * early and the partial results are still saved (flagged `partial`).
+ */
+export async function runConnector(
+  sourceName: string,
+  opts: { fetchImpl?: typeof fetch; timeoutMs?: number; deadline?: number } = {},
+): Promise<RunResult> {
   const result: RunResult = { source: sourceName, ok: false, found: 0, created: 0, updated: 0 };
   let sourceId: string | null = null;
   let config: SourceConfig = {};
@@ -21,9 +31,20 @@ export async function runConnector(sourceName: string, opts: { fetchImpl?: typeo
 
     const profile = await getProfile();
     const notes: Record<string, unknown> = {};
+    const { deadline } = opts;
+    // Cap per-request timeout so one slow call can't outlive the budget.
+    const timeoutMs = deadline ? Math.max(2_000, Math.min(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS, deadline - Date.now() - 1_000)) : opts.timeoutMs;
     const opps = await connector.fetch(config, profile.fieldTags, {
-      fetch: timeoutFetch(opts.fetchImpl ?? fetch, opts.timeoutMs),
+      fetch: timeoutFetch(opts.fetchImpl ?? fetch, timeoutMs),
       profile,
+      pause: async (ms) => {
+        if (deadline && Date.now() + ms + BUDGET_RESERVE_MS > deadline) {
+          result.partial = true;
+          return false;
+        }
+        await sleep(ms);
+        return true;
+      },
       note: (k, v) => {
         notes[k] = v;
       },
@@ -62,7 +83,7 @@ export async function runConnector(sourceName: string, opts: { fetchImpl?: typeo
     result.ok = true;
     await db.source.update({
       where: { id: source.id },
-      data: { lastRun: new Date(), config: toJson({ ...config, status: "ok", lastError: null, lastCounts: { found: result.found, created: result.created }, ...notes }) },
+      data: { lastRun: new Date(), config: toJson({ ...config, status: "ok", lastError: null, partial: result.partial === true, lastCounts: { found: result.found, created: result.created }, ...notes }) },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

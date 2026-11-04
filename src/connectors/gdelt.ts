@@ -1,5 +1,5 @@
 import type { Connector, NormalizedOpp } from "@/lib/connectors/types";
-import { getJson, sleep } from "@/lib/connectors/http";
+import { getJson, pauseFor } from "@/lib/connectors/http";
 
 // GDELT DOC 2.0 artlist shape per docs (not verified live). Asks for <=1 req / 5s.
 interface GdeltArticle { url?: string; title?: string; domain?: string; seendate?: string; sourcecountry?: string; }
@@ -15,7 +15,7 @@ export const gdelt: Connector = {
     const out: NormalizedOpp[] = [];
     let first = true;
     for (const query of queries) {
-      if (!first) await sleep(Number(config.delayMs ?? 5000));
+      if (!first && !(await pauseFor(ctx, Number(config.delayMs ?? 5000)))) break;
       first = false;
       const data = await getJson<{ articles?: GdeltArticle[] }>(
         ctx.fetch,

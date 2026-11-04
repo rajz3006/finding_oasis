@@ -1,20 +1,20 @@
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
 import { execSync } from "node:child_process";
-import { afterAll, beforeAll, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-// Fresh temp SQLite DB, set before db/seed modules load.
-const dir = fs.mkdtempSync(path.join(os.tmpdir(), "eb1a-seed-"));
-process.env.DATABASE_URL = `file:${path.join(dir, "t.db")}`;
+// DB-backed: runs only with TEST_DATABASE_URL (an empty throwaway Postgres DB).
+const url = process.env.TEST_DATABASE_URL;
+if (url) {
+  process.env.DATABASE_URL = url;
+  process.env.DIRECT_URL = url;
+}
 
+describe.skipIf(!url)("seed (postgres)", () => {
 beforeAll(() => {
-  execSync("npx prisma db push --skip-generate", { env: process.env, stdio: "ignore" });
+  execSync("npx prisma migrate deploy", { env: process.env, stdio: "ignore" });
 }, 60000);
 afterAll(async () => {
   const { db } = await import("./db");
   await db.$disconnect();
-  fs.rmSync(dir, { recursive: true, force: true });
 });
 
 it("concurrent ensureSeeded does not throw and seeds once", async () => {
@@ -34,3 +34,4 @@ it("concurrent seedVenues is idempotent", async () => {
   await Promise.all([seedVenues(), seedVenues(), seedVenues()]);
   expect(await db.venue.count()).toBe(v);
 }, 60000);
+});

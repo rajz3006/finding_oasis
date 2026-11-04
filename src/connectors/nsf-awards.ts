@@ -1,5 +1,5 @@
 import type { Connector, NormalizedOpp } from "@/lib/connectors/types";
-import { getJson, sleep } from "@/lib/connectors/http";
+import { getJson, pauseFor } from "@/lib/connectors/http";
 
 // Shape per NSF Awards API docs (api.nsf.gov/services/v1/awards.json; not verified live).
 // Pages via rpp (<=25) and offset (1-based).
@@ -11,7 +11,7 @@ export const nsfAwards: Connector = {
     const pages = Number(config.pages ?? 1);
     const out: NormalizedOpp[] = [];
     const seen = new Set<string>();
-    for (const tag of fieldScope) {
+    outer: for (const tag of fieldScope) {
       for (let p = 0; p < pages; p++) {
         const offset = 1 + p * 25;
         const q = encodeURIComponent(tag);
@@ -35,7 +35,7 @@ export const nsfAwards: Connector = {
           });
         }
         if (awards.length < 25) break;
-        await sleep(Number(config.delayMs ?? 500));
+        if (!(await pauseFor(ctx, Number(config.delayMs ?? 500)))) break outer;
       }
     }
     return out;

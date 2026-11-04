@@ -1,4 +1,5 @@
 "use server";
+import { assertUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
@@ -9,6 +10,7 @@ import { scoreView } from "@/lib/pursuit-view";
 
 /** Move a pursuit to a new state and stamp the matching date column. */
 export async function movePursuit(id: string, state: string) {
+  await assertUser();
   if (!isOneOf(PURSUIT_STATES, state)) return;
   const p = await db.pursuit.findUnique({ where: { id } });
   if (!p) return;
@@ -31,6 +33,7 @@ const s = (fd: FormData, k: string) => {
 };
 
 export async function savePursuit(fd: FormData) {
+  await assertUser();
   const id = s(fd, "id");
   if (!id) return;
   const state = s(fd, "state");
@@ -63,6 +66,7 @@ export async function previewScores(
   id: string,
   v: { brand: string; independence: string; invitation: boolean; completion: boolean; thirdParty: boolean },
 ): Promise<ScoreView | null> {
+  await assertUser();
   const p = await db.pursuit.findUnique({ where: { id }, include: { opportunity: { include: { venue: true } } } });
   if (!p) return null;
   const draft = {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth";
 import PDFDocument from "pdfkit";
 import { ensureSeeded } from "@/lib/seed";
 import { buildDossier, dossierCsv, type DossierSection } from "@/lib/dossier";
@@ -34,6 +35,8 @@ function dossierPdf(sections: DossierSection[]): Promise<Buffer> {
 }
 
 export async function GET(req: Request) {
+  const deny = await requireUser();
+  if (deny) return deny;
   const sp = new URL(req.url).searchParams;
   const raw = sp.get("criterion");
   const criterion = raw ? Number(raw) : undefined;

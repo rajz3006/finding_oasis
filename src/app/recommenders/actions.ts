@@ -1,4 +1,5 @@
 "use server";
+import { assertUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { createRecommender, deleteRecommender, getRecommender, updateRecommender } from "@/lib/data/recommenders";
 import { RECOMMENDER_STATUSES, isOneOf } from "@/lib/enums";
@@ -26,12 +27,14 @@ function fields(fd: FormData) {
 }
 
 export async function addRecommender(fd: FormData) {
+  await assertUser();
   const name = s(fd, "name");
   if (!name) return;
   await createRecommender({ name, ...fields(fd) });
   done();
 }
 export async function saveRecommender(fd: FormData) {
+  await assertUser();
   const id = s(fd, "id");
   const name = s(fd, "name");
   if (!id || !name) return;
@@ -39,12 +42,14 @@ export async function saveRecommender(fd: FormData) {
   done();
 }
 export async function removeRecommender(fd: FormData) {
+  await assertUser();
   const id = s(fd, "id");
   if (id) await deleteRecommender(id);
   done();
 }
 /** Mark contacted now and snooze the next nudge by N days (promotes identified -> contacted). */
 export async function markContacted(fd: FormData) {
+  await assertUser();
   const id = s(fd, "id");
   const r = id ? await getRecommender(id) : null;
   if (!id || !r) return;
@@ -58,6 +63,7 @@ export async function markContacted(fd: FormData) {
   done();
 }
 export async function setStatus(fd: FormData) {
+  await assertUser();
   const id = s(fd, "id");
   const status = s(fd, "status");
   if (!id || !isOneOf(RECOMMENDER_STATUSES, status)) return;

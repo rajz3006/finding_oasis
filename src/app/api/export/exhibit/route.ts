@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth";
 import PDFDocument from "pdfkit";
-import { readFile, stat } from "node:fs/promises";
-import path from "node:path";
+import { readEvidenceFile } from "@/lib/evidence";
 import { ensureSeeded } from "@/lib/seed";
 import { buildZip, exhibitCsv, loadExhibitPackage, manifestCsv, planBundle, type ExhibitPackage } from "@/lib/exhibit";
 
@@ -9,21 +9,6 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const MAX_FILE = 25 * 1024 * 1024;
-const evidenceRoot = () => path.resolve(process.env.EVIDENCE_DIR ?? path.join(process.cwd(), "evidence"));
-
-/** Resolve an artifact path to a file inside the evidence dir only (no traversal). */
-async function resolveInside(value: string): Promise<string | null> {
-  const root = evidenceRoot();
-  const p = path.resolve(root, value.replace(/^file:\/\//, ""));
-  if (p !== root && !p.startsWith(root + path.sep)) return null;
-  try {
-    const s = await stat(p);
-    return s.isFile() && s.size <= MAX_FILE ? p : null;
-  } catch {
-    return null;
-  }
-}
-
 function exhibitPdf(pkg: ExhibitPackage): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 40, size: "LETTER" });
@@ -65,6 +50,8 @@ function exhibitPdf(pkg: ExhibitPackage): Promise<Buffer> {
 }
 
 export async function GET(req: Request) {
+  const deny = await requireUser();
+  if (deny) return deny;
   const sp = new URL(req.url).searchParams;
   const raw = sp.get("criterion");
   const criterion = raw ? Number(raw) : undefined;
@@ -82,19 +69,19 @@ export async function GET(req: Request) {
   if (format === "csv") return new Response(exhibitCsv(pkg), { headers: dl("text/csv; charset=utf-8", "csv") });
   if (format === "pdf") return new Response(new Uint8Array(await exhibitPdf(pkg)), { headers: dl("application/pdf", "pdf") });
 
-  // zip: resolve files first so the index/manifest show bundled paths
-  const sources = new Map<string, string>();
+  // zip: fetch files from the storage driver first so the index/manifest show bundled paths
+  const files = new Map<string, Buffer>();
   for (const s of pkg.sections) for (const i of s.items) for (const a of i.artifacts) {
-    if (a.kind === "link" || a.kind === "metric" || /^https?:\/\//i.test(a.value)) continue;
-    const p = await resolveInside(a.value);
-    if (p) sources.set(a.value, p);
+    if (a.kind === "link" || a.kind === "metric" || /^https?:\/\//i.test(a.value) || files.has(a.value)) continue;
+    const data = await readEvidenceFile(a.value.replace(/^file:\/\//, ""), MAX_FILE);
+    if (data) files.set(a.value, data);
   }
-  const plan = planBundle(pkg, (v) => sources.get(v) ?? null);
+  const plan = planBundle(pkg, (v) => (files.has(v) ? v : null));
   const entries = [
     { name: "exhibit-index.pdf", data: await exhibitPdf(pkg) },
     { name: "exhibit-index.csv", data: Buffer.from(exhibitCsv(pkg)) },
     { name: "manifest.csv", data: Buffer.from(manifestCsv(pkg)) },
   ];
-  for (const f of plan) entries.push({ name: f.zipPath, data: await readFile(f.source) });
+  for (const f of plan) entries.push({ name: f.zipPath, data: files.get(f.source)! });
   return new Response(new Uint8Array(buildZip(entries)), { headers: dl("application/zip", "zip") });
 }

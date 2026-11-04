@@ -25,6 +25,13 @@ export async function getJson<T = unknown>(
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Throttle wait via ctx.pause when present (budget-aware); false means out of time, so stop. */
+export async function pauseFor(ctx: { pause?: (ms: number) => Promise<boolean> }, ms: number): Promise<boolean> {
+  if (ctx.pause) return ctx.pause(ms);
+  await sleep(ms);
+  return true;
+}
+
 /** Lowercase tag-in-text match used for field scoping. */
 export function matchesScope(text: string, tags: string[]): boolean {
   const t = text.toLowerCase();

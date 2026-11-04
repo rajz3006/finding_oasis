@@ -1,4 +1,5 @@
 "use server";
+import { assertUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { deleteEvidenceFile, saveEvidenceFile } from "@/lib/evidence";
@@ -12,6 +13,7 @@ const s = (fd: FormData, k: string) => {
 
 /** Add evidence: uploaded file wins, else the pasted link/metric value. */
 export async function addEvidence(fd: FormData) {
+  await assertUser();
   const pursuitId = s(fd, "pursuitId");
   if (!pursuitId || !(await db.pursuit.findUnique({ where: { id: pursuitId } }))) return;
   const checklistItem = s(fd, "checklistItem");
@@ -32,6 +34,7 @@ export async function addEvidence(fd: FormData) {
 }
 
 export async function removeEvidence(fd: FormData) {
+  await assertUser();
   const id = s(fd, "id");
   if (!id) return;
   const ev = await db.evidence.findUnique({ where: { id } });
@@ -47,6 +50,7 @@ export async function removeEvidence(fd: FormData) {
 
 /** User-confirmed corroboration proofs (suggested from attached evidence). */
 export async function saveProofs(fd: FormData) {
+  await assertUser();
   const id = s(fd, "id");
   if (!id || !(await db.pursuit.findUnique({ where: { id } }))) return;
   const p = parseProofs(fd);

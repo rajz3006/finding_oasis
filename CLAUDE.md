@@ -3,12 +3,11 @@
 Guidance for the Claude Code orchestrator building this project. Read this first.
 
 ## What this is
-A **lean, single-user, local-first** web app that helps one person (the owner) build an EB-1A
+A **lean, single-user** web app (local or hosted on Vercel + Supabase) that helps one person (the owner) build an EB-1A
 ("extraordinary ability") immigration profile from scratch. It finds selective opportunities,
 maps each to the 10 regulatory criteria, scores venue quality, and stores the proof.
 
-It is **not** a product: no other users, no accounts, no billing. Data stays on the owner's
-machine in a single SQLite file. Favor lean and functional over polished.
+It is **not** a product: no other users, no accounts, no billing. Data lives in one Postgres database (Supabase when hosted). Favor lean and functional over polished.
 
 ## The owner's situation (drives priorities)
 - Starting from **zero evidence**. This is a build-from-zero engine, not a tracker of existing wins.
@@ -25,9 +24,9 @@ Never count coverage on avoid-flagged evidence.
 ## Tech stack (recommended — adjust only with reason)
 - Next.js (App Router) + TypeScript
 - Tailwind + shadcn/ui
-- SQLite via Prisma (schema in `prisma/schema.prisma`)
-- Evidence files stored in a local `/evidence` folder; DB stores the path
-- Connectors are plain TS modules; run on demand or via `node-cron`
+- Postgres via Prisma (schema in `prisma/schema.prisma`; migrations in `prisma/migrations`, applied with `npm run db:migrate`, never on Vercel build)
+- Evidence files: local `./evidence` in dev, private Supabase Storage bucket when hosted (`src/lib/evidence.ts`); DB stores the object key
+- Connectors are plain TS modules; run on demand, via `node-cron` locally, or via the Vercel cron dispatcher
 - Seed data loaded from `seed/*.json` on first run
 
 ## Data model
@@ -86,3 +85,9 @@ as a "source stale" badge. On every Venue upsert, match against `seed/venues.see
 
 ## Attribution for commits/PRs
 Follow the attribution instructions given by the session/tooling; do not hardcode a model name here.
+
+## Hosted mode (Vercel + Supabase)
+- Deploy steps: `DEPLOY.md`. Env list: `.env.example` (one Supabase URL: `NEXT_PUBLIC_SUPABASE_URL`; `SUPABASE_SERVICE_ROLE_KEY`/`CRON_SECRET` are server-only, never `NEXT_PUBLIC_`).
+- Auth: `src/middleware.ts` gates everything (Supabase OTP, email must equal `ALLOWED_EMAIL`); production with missing auth env fails closed (503). Dev with no env is open. Route handlers call `requireUser()`, every exported server action starts with `await assertUser()` (`src/lib/auth.ts`); new routes/actions must do the same. `/login` and `/auth/*` actions are the exceptions.
+- Storage: `evidence.ts` picks Supabase when URL + service key are set, else disk. Hosted uploads max 4MB (Vercel body cap). Client components must never import `evidence.ts`, `db.ts` or `auth.ts` (server-only).
+- Cron: `vercel.json` has one daily `/api/cron/dispatch` (Hobby limit); bearer `CRON_SECRET`, fails closed if unset. Connectors must respect the ~50s budget. Prisma uses the `postgres` role (bypasses RLS); tables have RLS on with no policies.

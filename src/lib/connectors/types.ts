@@ -38,6 +38,8 @@ export interface ConnectorContext {
   profile: ProfileCtx;
   /** Extra metric notes (e.g. citation counts); stored in Source.config. */
   note: (key: string, value: unknown) => void;
+  /** Throttle wait. Resolves false (without waiting) if the time budget can't cover it: stop and return partial results. */
+  pause?: (ms: number) => Promise<boolean>;
 }
 
 export interface Connector {
@@ -52,4 +54,6 @@ export interface RunResult {
   created: number;
   updated: number;
   error?: string;
+  /** Stopped early at the time budget; progress so far was saved. */
+  partial?: boolean;
 }

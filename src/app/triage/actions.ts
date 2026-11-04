@@ -1,10 +1,12 @@
 "use server";
+import { assertUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { isOneOf, QUALITY_TIERS } from "@/lib/enums";
 
 /** Set tier (and optionally avoid) on a venue from the triage list. */
 export async function triageVenue(formData: FormData) {
+  await assertUser();
   const id = String(formData.get("id") ?? "");
   const tier = formData.get("tier");
   const avoid = formData.get("avoid") === "on";
@@ -16,6 +18,7 @@ export async function triageVenue(formData: FormData) {
 
 /** Flag a venue as avoid (leaves the triage queue). */
 export async function markAvoid(formData: FormData) {
+  await assertUser();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   await db.venue.update({ where: { id }, data: { avoidFlag: true } });

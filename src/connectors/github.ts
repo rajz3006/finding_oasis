@@ -1,5 +1,5 @@
 import type { Connector, NormalizedOpp } from "@/lib/connectors/types";
-import { getJson, sleep } from "@/lib/connectors/http";
+import { getJson, pauseFor } from "@/lib/connectors/http";
 
 export const DEFAULT_REPOS = [
   "apache/airflow",
@@ -30,7 +30,7 @@ export const github: Connector = {
     if (token) headers.Authorization = `Bearer ${token}`;
     const out: NormalizedOpp[] = [];
 
-    for (const repo of repos) {
+    outer: for (const repo of repos) {
       // Search API requires is:issue; labels are OR'd via separate queries.
       for (const label of ["good first issue", "help wanted"]) {
         const q = encodeURIComponent(`is:issue is:open repo:${repo} label:"${label}" no:assignee`);
@@ -57,7 +57,7 @@ export const github: Connector = {
             raw: { number: i.number, title: i.title, labels: i.labels?.map((l) => l.name), comments: i.comments },
           });
         }
-        if (!token) await sleep(Number(config.delayMs ?? 2200)); // unauth search: ~10 req/min
+        if (!token && !(await pauseFor(ctx, Number(config.delayMs ?? 2200)))) break outer; // unauth search: ~10 req/min
       }
     }
     return out;

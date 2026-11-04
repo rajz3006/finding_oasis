@@ -1,4 +1,5 @@
 "use server";
+import { assertUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { updateProfile } from "@/lib/data/profile";
 import { getSource, updateSource } from "@/lib/data/sources";
@@ -7,6 +8,7 @@ import { RUNNER_KEYS } from "@/lib/connectors/config-hints";
 import { runConnector } from "@/lib/connectors/runner";
 
 export async function saveProfile(formData: FormData) {
+  await assertUser();
   const tags = String(formData.get("fieldTags") ?? "").split(/[,\n]/);
   await updateProfile({
     name: String(formData.get("name") ?? ""),
@@ -18,6 +20,7 @@ export async function saveProfile(formData: FormData) {
 }
 
 export async function runSourceNow(formData: FormData) {
+  await assertUser();
   await runConnector(String(formData.get("name") ?? ""));
   revalidatePath("/profile");
   revalidatePath("/opportunities");
@@ -25,6 +28,7 @@ export async function runSourceNow(formData: FormData) {
 
 // Validate JSON server-side; keep runner-managed keys (status, lastError, ...) and note-keys not in the edit.
 export async function saveSourceConfig(formData: FormData): Promise<void> {
+  await assertUser();
   const id = String(formData.get("id") ?? "");
   const raw = String(formData.get("config") ?? "").trim() || "{}";
   const src = await getSource(id);

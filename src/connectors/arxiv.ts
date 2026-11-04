@@ -1,6 +1,6 @@
 import type { Connector, NormalizedOpp } from "@/lib/connectors/types";
 import { getText, parseFeed } from "@/lib/connectors/feed";
-import { sleep } from "@/lib/connectors/http";
+import { pauseFor } from "@/lib/connectors/http";
 
 // Atom API shape per arxiv.org/help/api (not verified live). Etiquette: ~1 req / 3s.
 export const arxiv: Connector = {
@@ -11,7 +11,7 @@ export const arxiv: Connector = {
     const seen = new Set<string>();
     let first = true;
     for (const tag of fieldScope) {
-      if (!first) await sleep(Number(config.delayMs ?? 3000));
+      if (!first && !(await pauseFor(ctx, Number(config.delayMs ?? 3000)))) break;
       first = false;
       const q = encodeURIComponent(`all:"${tag}"`);
       const xml = await getText(ctx.fetch, `https://export.arxiv.org/api/query?search_query=${q}&start=0&max_results=${max}&sortBy=submittedDate&sortOrder=descending`);

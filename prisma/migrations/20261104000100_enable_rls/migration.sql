@@ -1,0 +1,12 @@
+-- Enable RLS on every table with NO policies: anon/authenticated roles see nothing;
+-- only the server connection (postgres / service role, which bypass RLS) reaches data.
+ALTER TABLE "Venue" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Opportunity" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Criterion" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Pursuit" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Evidence" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Source" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Profile" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Channel" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ReachMetric" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Recommender" ENABLE ROW LEVEL SECURITY;
