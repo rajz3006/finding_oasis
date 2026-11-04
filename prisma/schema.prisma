@@ -1,0 +1,106 @@
+// EB-1A Tracker — data model
+// SQLite via Prisma. Six entities. Coverage/strength are derived on read, not stored.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// A place that confers evidence: journal, conference, award, outlet, OSS project, etc.
+model Venue {
+  id            String        @id @default(cuid())
+  name          String
+  kind          String        // journal | conference | award | media_outlet | podcast | oss_project | standards_body | cert_program | society
+  qualityTier   String        @default("unrated") // T1 | T2 | T3 | curated | unrated
+  avoidFlag     Boolean       @default(false)     // pay-to-play / predatory / student-only
+  selectivity   String?       // acceptance rate, review model, free text
+  indexing      String?       // Scopus / WoS / ACM DL / IEEE Xplore / DOI
+  cost          String?       // APC or fee, if any
+  homepage      String?
+  fieldTags     String        @default("[]")      // JSON array of domain tags
+  notes         String?
+  opportunities Opportunity[]
+  createdAt     DateTime      @default(now())
+}
+
+// A specific actionable thing at a Venue (open CFP, call for reviewers, award cycle, open issue).
+model Opportunity {
+  id            String    @id @default(cuid())
+  venue         Venue?    @relation(fields: [venueId], references: [id])
+  venueId       String?
+  title         String
+  type          String    // publish_article | give_talk | submit_cfp | judge_review | judge_pc | judge_award | membership | press_mention | oss_contribution | award_entry | patent | standards_role
+  criterionIds  String    @default("[]") // JSON array of ints 1..10
+  deadline      DateTime?
+  url           String?
+  effort        String    @default("medium") // low | medium | high
+  statusCatalog String    @default("unknown") // open | closed | rolling | unknown
+  source        Source?   @relation(fields: [sourceId], references: [id])
+  sourceId      String?
+  raw           String?   // original payload JSON
+  pursuits      Pursuit[]
+  createdAt     DateTime  @default(now())
+
+  @@unique([sourceId, url])
+}
+
+// The 10 regulatory criteria (seeded, static).
+model Criterion {
+  id             Int     @id // 1..10
+  name           String
+  proofChecklist String  @default("[]") // JSON array of strings
+  buildable      Boolean @default(false) // can be earned deliberately from zero
+  active         Boolean @default(true)  // whether the app surfaces opportunities for it
+}
+
+// The owner's relationship to an Opportunity (the pipeline item).
+model Pursuit {
+  id            String      @id @default(cuid())
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+  state         String      @default("shortlisted") // shortlisted | applied | accepted | completed | dropped
+  criterionIds  String      @default("[]") // JSON array of ints actually counted
+  strength      String?     // strong | moderate | thin
+  appliedOn     DateTime?
+  decidedOn     DateTime?
+  completedOn   DateTime?
+  notes         String?
+  evidence      Evidence[]
+  createdAt     DateTime    @default(now())
+}
+
+// A proof artifact attached to a Pursuit.
+model Evidence {
+  id            String   @id @default(cuid())
+  pursuit       Pursuit  @relation(fields: [pursuitId], references: [id])
+  pursuitId     String
+  kind          String   // file | link | email | screenshot | metric
+  label         String   // e.g. "invitation email", "name on PC roster"
+  value         String   // file path or URL
+  checklistItem String?  // which proof-checklist item it satisfies
+  createdAt     DateTime @default(now())
+}
+
+// An ingestion source and its last run.
+model Source {
+  id            String        @id @default(cuid())
+  name          String        @unique // developers.events | OpenAlex | GitHub | manual | ...
+  access        String        // api | scrape | manual
+  lastRun       DateTime?
+  config        String        @default("{}") // JSON: query params, field scoping, key refs
+  opportunities Opportunity[]
+}
+
+// Single-row owner profile (field scope + identifiers for connectors).
+model Profile {
+  id        String   @id @default("me")
+  name      String   @default("")
+  orcid     String   @default("")
+  email     String   @default("")
+  fieldTags String   @default("[\"data engineering\",\"data product management\",\"analytics\",\"data management\"]")
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,52 @@
+{
+  "description": "Patterns and named venues to flag with avoidFlag=true. These dilute or backfire at EB-1A final merits. Match venue names/domains against these on ingest; when matched, set avoidFlag=true and surface a warning.",
+  "patterns": [
+    {
+      "signal": "pay-to-publish / pure APC with no real review",
+      "why": "USCIS views pay-to-play outlets as weak evidence; MDPI-style stigma noted by counsel.",
+      "examples": [
+        "predatory open-access journals",
+        "journals that guarantee acceptance",
+        "outlets with no named editorial review process"
+      ]
+    },
+    {
+      "signal": "sells judge/mentor seats or lets anyone self-register as a judge",
+      "why": "The judging memo warns these undermine the independent-selection requirement and can be cited negatively.",
+      "examples": [
+        "mass-market online hackathon 'judge/mentor' sign-ups",
+        "any program charging a fee to be listed as a judge"
+      ]
+    },
+    {
+      "signal": "student-only or audience-mainly-students events",
+      "why": "Rarely move the needle for a seasoned professional; usable only sparingly as supporting evidence.",
+      "examples": [
+        "collegiate-only hackathons",
+        "student poster sessions presented as judging"
+      ]
+    },
+    {
+      "signal": "weak-for-EB1A developer outlets",
+      "why": "Lower evidentiary weight; counsel has seen mixed USCIS treatment.",
+      "examples": [
+        "Hacker Noon (noted as tougher for EB-1A; has worked for O-1A)"
+      ]
+    }
+  ],
+  "notDisqualifying": "Avoid-flagged items are not deleted; they stay visible with a warning and are excluded from counted coverage. The owner can override a flag per venue.",
+  "hosts": [
+    "hackernoon.com",
+    "mdpi.com"
+  ],
+  "namePatterns": [
+    "\\bmdpi\\b",
+    "\\bhacker ?noon\\b",
+    "predatory",
+    "pay[- ]to[- ]publish",
+    "\\bhackathons?\\b.*\\b(judge|mentor)",
+    "\\b(judge|mentor)\\b.*\\bhackathons?\\b",
+    "\\bstudent[- ]only\\b",
+    "\\bcollegiate\\b"
+  ]
+}

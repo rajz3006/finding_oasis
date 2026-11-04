@@ -1,0 +1,111 @@
+[
+  {
+    "id": 1,
+    "name": "Nationally or internationally recognized awards for excellence",
+    "buildable": false,
+    "active": true,
+    "proofChecklist": [
+      "Award page showing it is open to a national/international field",
+      "Evidence the award is for excellence in the field",
+      "Proof of selection criteria and who confers it"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Membership in associations requiring outstanding achievement",
+    "buildable": false,
+    "active": true,
+    "proofChecklist": [
+      "Membership requirements page",
+      "Evidence the body judges applicants before admission",
+      "Any leadership/board role held",
+      "Evidence the organization is highly respected in the field"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Published material about you or your work",
+    "buildable": true,
+    "active": true,
+    "proofChecklist": [
+      "The article/segment featuring you",
+      "Circulation or audience data (print or online)",
+      "Evidence of who reads/consumes the outlet"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Judging the work of others (panel or individually)",
+    "buildable": true,
+    "active": true,
+    "proofChecklist": [
+      "Nature of the event/venue where you judged",
+      "Information on the other judges",
+      "Invitation email and evidence of participation",
+      "Your name on the public roster + thank-you/acknowledgement letter"
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Original contributions of major significance",
+    "buildable": true,
+    "active": true,
+    "proofChecklist": [
+      "Expert reference letters establishing the author's authority",
+      "Evidence the contribution is original",
+      "Evidence others rely on it (citations, adoption, downloads, usage)"
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Authorship of scholarly or professional/major-trade articles",
+    "buildable": true,
+    "active": true,
+    "proofChecklist": [
+      "The article and publication materials",
+      "Evidence of the outlet's circulation/indexing/recognition",
+      "Evidence of citations"
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Display or showcasing of your work",
+    "buildable": true,
+    "active": true,
+    "proofChecklist": [
+      "Agenda/program showing you presented",
+      "Slides or recording of the presentation",
+      "Event profile and audience/selectivity evidence"
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Leading or critical role for a distinguished organization",
+    "buildable": false,
+    "active": true,
+    "proofChecklist": [
+      "Evidence of the organization's distinguished reputation (size, scope, materials)",
+      "Description of the critical/essential role you played"
+    ]
+  },
+  {
+    "id": 9,
+    "name": "High salary or substantial remuneration",
+    "buildable": false,
+    "active": true,
+    "proofChecklist": [
+      "Employment or service contracts",
+      "W-2 or pay stubs",
+      "Comparison data for others in the field"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Commercial success in the performing arts",
+    "buildable": false,
+    "active": false,
+    "proofChecklist": [
+      "Box-office receipts or sales figures"
+    ]
+  }
+]
