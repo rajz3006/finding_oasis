@@ -17,10 +17,15 @@ export const gdelt: Connector = {
     for (const query of queries) {
       if (!first && !(await pauseFor(ctx, Number(config.delayMs ?? 5000)))) break;
       first = false;
-      const data = await getJson<{ articles?: GdeltArticle[] }>(
-        ctx.fetch,
-        `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&format=json&maxrecords=250&sort=datedesc`,
-      );
+      const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&format=json&maxrecords=250&sort=datedesc`;
+      let data: { articles?: GdeltArticle[] };
+      try {
+        data = await getJson<{ articles?: GdeltArticle[] }>(ctx.fetch, url);
+      } catch (e) {
+        // GDELT throttles intermittently (429) even when spaced; retry once after a pause.
+        if (!(e instanceof Error) || !/HTTP 429/.test(e.message) || !(await pauseFor(ctx, Number(config.delayMs ?? 5000)))) throw e;
+        data = await getJson<{ articles?: GdeltArticle[] }>(ctx.fetch, url);
+      }
       for (const a of data.articles ?? []) {
         if (!a.url || !a.title || out.some((o) => o.url === a.url)) continue;
         out.push({

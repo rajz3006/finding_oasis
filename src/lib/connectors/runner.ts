@@ -26,6 +26,7 @@ export async function runConnector(
     if (!source) throw new Error(`Unknown source "${sourceName}"`);
     sourceId = source.id;
     config = parseJson<SourceConfig>(source.config, {});
+    delete config.skipped; // per-run note: must not outlive the run that set it
     const connector = getConnector(sourceName);
     if (!connector) throw new Error(`No connector registered for "${sourceName}"`);
 

@@ -96,3 +96,26 @@ describe("failures", () => {
     await expect(crossref.fetch({}, ["x"], ctx)).rejects.toThrow(/HTTP 404/);
   });
 });
+
+describe("GitHub resilience (found in live test)", () => {
+  const statusFetch = (bad: string): typeof fetch =>
+    (async (input: RequestInfo | URL) => {
+      const url = decodeURIComponent(String(input));
+      if (url.includes(bad)) return new Response(JSON.stringify({ message: "Validation Failed" }), { status: 422 });
+      return new Response(JSON.stringify({ items: [{ html_url: `https://github.com/${bad}x/issues/1`, title: "t", number: 1, repository_url: "" }] }), { status: 200 });
+    }) as typeof fetch;
+  const run = (repos: string[], bad: string) => {
+    const notes: Record<string, unknown> = {};
+    return github
+      .fetch({ repos, delayMs: 0 }, [], { fetch: statusFetch(bad), profile: { name: "", orcid: "", email: "" }, note: (k, v) => void (notes[k] = v) })
+      .then((out) => ({ out, notes }));
+  };
+  it("skips a renamed repo (422) and keeps the rest", async () => {
+    const { out, notes } = await run(["a/ok", "gone/repo"], "gone/repo");
+    expect(out.length).toBeGreaterThan(0);
+    expect(notes.skippedRepos).toEqual(["gone/repo"]);
+  });
+  it("throws when every repo fails", async () => {
+    await expect(run(["gone/repo"], "gone/repo")).rejects.toThrow(/All repos failed/);
+  });
+});

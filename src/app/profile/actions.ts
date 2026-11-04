@@ -6,6 +6,7 @@ import { getSource, updateSource } from "@/lib/data/sources";
 import { parseJson, toJson } from "@/lib/json";
 import { RUNNER_KEYS } from "@/lib/connectors/config-hints";
 import { runConnector } from "@/lib/connectors/runner";
+import { DEFAULT_BUDGET_MS } from "@/lib/cron-dispatch";
 
 export async function saveProfile(formData: FormData) {
   await assertUser();
@@ -21,7 +22,7 @@ export async function saveProfile(formData: FormData) {
 
 export async function runSourceNow(formData: FormData) {
   await assertUser();
-  await runConnector(String(formData.get("name") ?? ""));
+  await runConnector(String(formData.get("name") ?? ""), { deadline: Date.now() + DEFAULT_BUDGET_MS });
   revalidatePath("/profile");
   revalidatePath("/opportunities");
 }

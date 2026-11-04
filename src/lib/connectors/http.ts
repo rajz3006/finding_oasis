@@ -19,7 +19,15 @@ export async function getJson<T = unknown>(
   headers: Record<string, string> = {},
 ): Promise<T> {
   const res = await f(url, { headers: { Accept: "application/json", "User-Agent": "eb1a-tracker (local)", ...headers } });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${new URL(url).host}`);
+  if (!res.ok) {
+    // Surface the API's own explanation (rate limit, validation) when it sends one.
+    let detail = "";
+    try {
+      const j = (await res.json()) as { message?: string };
+      if (j?.message) detail = `: ${String(j.message).slice(0, 160)}`;
+    } catch {}
+    throw new Error(`HTTP ${res.status} for ${new URL(url).host}${detail}`);
+  }
   return (await res.json()) as T;
 }
 

@@ -16,4 +16,4 @@ export const CONFIG_HINTS: Record<string, string> = {
 };
 
 // Runner-managed keys; preserved from the stored config on edit.
-export const RUNNER_KEYS = ["status", "lastError", "lastErrorAt", "lastCounts"];
+export const RUNNER_KEYS = ["status", "lastError", "lastErrorAt", "lastCounts", "skipped"];

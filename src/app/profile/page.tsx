@@ -11,6 +11,7 @@ import { PositioningForm } from "@/components/profile/positioning-form";
 import { savePositioning } from "@/app/brand/actions";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // the "Run now" server action runs connectors (budgeted to 50s)
 
 const input = "mt-1 w-full rounded border border-zinc-300 px-2 py-1 text-sm";
 
@@ -75,8 +76,15 @@ export default async function Page() {
                     <span title={h.error} className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">
                       source stale{h.reason ? `: ${h.reason}` : ""}
                     </span>
+                  ) : parseJson<{ skipped?: string }>(s.config, {}).skipped ? (
+                    <span title={parseJson<{ skipped?: string }>(s.config, {}).skipped} className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">
+                      not configured
+                    </span>
                   ) : (
                     <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs text-green-800">ok</span>
+                  )}
+                  {!h.stale && parseJson<{ skipped?: string }>(s.config, {}).skipped && (
+                    <div className="mt-1 max-w-xs truncate text-xs text-zinc-500">{parseJson<{ skipped?: string }>(s.config, {}).skipped}</div>
                   )}
                   {h.error && <div className="mt-1 max-w-xs truncate text-xs text-zinc-500" title={h.error}>{h.error}</div>}
                 </td>
